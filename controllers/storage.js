@@ -27,6 +27,8 @@ const createItem = async (req, res)=>{
 
   const { body, file } = req
 
+  console.log(file)
+
   const fileData = {
     url: `${PUBLIC_URL}/${file.filename}`,
     filename: file.filename

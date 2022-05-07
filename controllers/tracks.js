@@ -1,6 +1,8 @@
 const {tracksModel} = require("../models")
 const {handleHttpError} = require("../utils/handleError")
 
+const {matchedData} = require("express-validator")
+
 /**
   *Get the list from data base!
   *@param {*} req
@@ -11,8 +13,8 @@ const getItems = async (req, res)=>{
   try{
       const data = await tracksModel.find({})
       res.send({data})
-  }catch (err) {
-      handleHttpError(res, "ERROR_GET_ITEM")
+  }catch (e) {
+      handleHttpError(res, "ERROR_GET_ITEMS")
   }
 
 }
@@ -21,7 +23,18 @@ const getItems = async (req, res)=>{
   *@param {*} req
   *@param {*} res
   **/
-const getItem = (req, res)=>{
+const getItem = async (req, res)=>{
+
+  try{
+
+    req = matchedData(req)
+
+    const {id} = req
+    const data = await tracksModel.findById(id)
+      res.send({data})
+  } catch (e) {
+    handleHttpError(res, "ERROR_GET_ITEM")
+  }
   
 }
 /**
@@ -30,12 +43,12 @@ const getItem = (req, res)=>{
   *@param {*} res
   **/
 const createItem = async (req, res)=>{
-try{  
-  const { body } = matchedData(req)
+try{   
+  const body = matchedData(req)
   const data = await tracksModel.create(body)
   res.send({data})
 }
-catch(err){
+catch(e){
   handleHttpError(res, "ERROR_CREATE_ITEM")
 }
 
@@ -46,17 +59,32 @@ catch(err){
   *@param {*} req
   *@param {*} res
   **/
-const updateItems = (req, res)=>{
-   const dataRespose = [" Hello ", "world"]
-  res.send({dataRespose})
+const updateItem = async (req, res)=>{
+try{   
+  const {id, ...body} = matchedData(req)
+  const data = await tracksModel.findOneAndUpdate(id , body)
+  res.send({data})
+}
+catch(e){
+  handleHttpError(res, "ERROR_UPDATE_ITEM")
+}
 }
 /**
   *Delete an item data base!
   *@param {*} req
   *@param {*} res
   **/
-const deleteItems = (req, res)=>{
-  
+const deleteItem = async (req, res)=>{
+  try{
+
+    req = matchedData(req)
+
+    const {id} = req
+    const data = await tracksModel.deleteOne({_id:id})
+      res.send({data})
+  } catch (e) {
+    handleHttpError(res, "ERROR_DELETE_ITEM")
+  }
 }
 
-module.exports = { getItems, getItem, createItem, updateItems, deleteItems}
+module.exports = { getItems, getItem, createItem, updateItem, deleteItem}
